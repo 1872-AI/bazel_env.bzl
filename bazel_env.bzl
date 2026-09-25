@@ -548,6 +548,12 @@ def _bazel_env_rule_impl(ctx):
         arguments = [assemble_args],
         toolchain = _CHMOD_TOOLCHAIN_TYPE,
         mnemonic = "BazelEnvBinDir",
+        # PATH points into this directory, so it has to exist on disk after a plain `bazel build`.
+        # With --remote_download_outputs=minimal, a remote cache hit leaves it empty.
+        # It only writes a few trampolines, so there is nothing to gain remotely.
+        execution_requirements = {
+            "no-remote": "",
+        },
     )
 
     toolchain_infos = [struct(
